@@ -1,0 +1,46 @@
+//
+//  {{ module_info.name }}{{ module_info.file_name }}
+//  {{ module_info.project_name }}
+//
+//  Created by {{ developer.name }} on {{ date }}.
+//  Copyright © {{ year }} {{ developer.company }}. All rights reserved.
+//
+
+import Swinject
+
+// Don't forget to add this assembly to your assembler
+
+class {{ module_info.name }}Assembly: AssemblyType {
+
+    func assemble(container: Container) {
+
+        container.register({{ module_info.name }}Presenter.self) { resolver in
+            let presenter = {{ module_info.name }}Presenter()
+            presenter.router = resolver.resolve({{ module_info.name }}Router.self)!
+            presenter.view = resolver.resolve({{ module_info.name }}ViewController.self)!
+            return presenter
+        }.initCompleted { (resolver, presenter) in
+            presenter.interactor = resolver.resolve({{ module_info.name }}Interactor.self)!
+        }
+
+        container.register({{ module_info.name }}ViewController.self) { resolver in
+            // Register storyboard somewhere else e.g. ApplicationAssembly
+            let storyboard = resolver.resolve(UIStoryboard.self)!
+            // Don't forget to change identifier to the actual one in your storyboard
+            return storyboard.instantiateViewControllerWithIdentifier("{{ module_info.name }}") as! {{ module_info.name }}ViewController
+        }.initCompleted { (resolver, controller) in
+            controller.output = resolver.resolve({{ module_info.name }}Presenter.self)!
+        }
+
+        container.register({{ module_info.name }}Interactor.self) { resolver in {{ module_info.name }}Interactor() }.initCompleted { (resolver, interactor) in
+            interactor.output = resolver.resolve({{ module_info.name }}Presenter.self)!
+        }
+
+        container.register({{ module_info.name }}Router.self) { resolver in {{ module_info.name }}Router() }.initCompleted { (resolver, router) in
+            router.viewController = resolver.resolve({{ module_info.name }}ViewController.self)!
+            router.resolver = resolver
+        }
+
+    }
+
+}
